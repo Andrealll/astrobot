@@ -1,9 +1,9 @@
 name: Ingest KB to Supabase
 
 on:
-  workflow_dispatch: {}              # abilita il bottone "Run workflow"
+  workflow_dispatch: {}
   repository_dispatch:
-    types: [kb-updated]             # opzionale: trigger dal repo KB privato
+    types: [kb-updated]
 
 jobs:
   ingest:
@@ -18,8 +18,8 @@ jobs:
       - name: Checkout private KB
         uses: actions/checkout@v4
         with:
-          repository: ORG/astrobot-kb     # <-- metti il tuo org/utente
-          ref: main                       # <-- cambia se il branch KB non è main
+          repository: Andrealll/astrobot-kb   # <— repo privato KB
+          ref: main                           # <— cambia se il branch NON è main
           token: ${{ secrets.KB_READ_TOKEN }}
           path: kb
 
@@ -31,7 +31,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Debug utile: verifica che i .md ci siano
       - name: Debug KB tree
         run: |
           echo "PWD=$(pwd)"
