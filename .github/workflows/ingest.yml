@@ -2,6 +2,12 @@ name: Ingest KB to Supabase
 
 on:
   workflow_dispatch: {}              # avvio manuale da Actions
+  push:
+    branches: [ main ]     # cambia se il tuo default branch è diverso
+    paths:
+      - '.github/workflows/ingest.yml'
+      - 'ingest.py'
+      - 'requirements.txt'
   repository_dispatch:
     types: [kb-updated]             # trigger inviato dal repo privato (facoltativo)
   # schedule:                        # facoltativo: esecuzione notturna
