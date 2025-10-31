@@ -7,7 +7,7 @@ from rag import build_query_ctx, search_topk, build_synthesis_prompt
 def interpreta_groq(prompt: str) -> str:
     return f"[DEMO] Sintesi pronta su prompt di {len(prompt)} caratteri."
 
-router = APIRouter()
+kb_router = APIRouter()
 
 @router.post("/interpreta-natal")
 def interpreta_natal(placements: Dict[str, Any]):
