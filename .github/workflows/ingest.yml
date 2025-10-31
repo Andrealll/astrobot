@@ -1,0 +1,40 @@
+name: Ingest KB to Supabase
+
+on:
+  workflow_dispatch: {}              # avvio manuale da Actions
+  repository_dispatch:
+    types: [kb-updated]             # trigger inviato dal repo privato (facoltativo)
+  # schedule:                        # facoltativo: esecuzione notturna
+  #   - cron: '0 3 * * *'
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read                 # sufficiente per il checkout del repo pubblico
+
+    steps:
+      - name: Checkout public repo
+        uses: actions/checkout@v4
+
+      - name: Checkout private KB
+        uses: actions/checkout@v4
+        with:
+          repository: Andrealll/astrobot-kb  # <--- Sostituisci ORG
+          ref: main                    # <--- Sostituisci se diverso
+          token: ${{ secrets.KB_READ_TOKEN }}
+          path: kb                     # clona la KB in ./kb
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Ingest into Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python ingest.py
