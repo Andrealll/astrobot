@@ -1,23 +1,15 @@
 name: Ingest KB to Supabase
 
 on:
-  workflow_dispatch: {}              # avvio manuale da Actions
-  push:
-    branches: [ main ]     # cambia se il tuo default branch è diverso
-    paths:
-      - '.github/workflows/ingest.yml'
-      - 'ingest.py'
-      - 'requirements.txt'
+  workflow_dispatch: {}              # abilita il bottone "Run workflow"
   repository_dispatch:
-    types: [kb-updated]             # trigger inviato dal repo privato (facoltativo)
-  # schedule:                        # facoltativo: esecuzione notturna
-  #   - cron: '0 3 * * *'
+    types: [kb-updated]             # opzionale: trigger dal repo KB privato
 
 jobs:
   ingest:
     runs-on: ubuntu-latest
     permissions:
-      contents: read                 # sufficiente per il checkout del repo pubblico
+      contents: read
 
     steps:
       - name: Checkout public repo
@@ -26,10 +18,10 @@ jobs:
       - name: Checkout private KB
         uses: actions/checkout@v4
         with:
-          repository: Andrealll/astrobot-kb  # <--- Sostituisci ORG
-          ref: main                    # <--- Sostituisci se diverso
+          repository: ORG/astrobot-kb     # <-- metti il tuo org/utente
+          ref: main                       # <-- cambia se il branch KB non è main
           token: ${{ secrets.KB_READ_TOKEN }}
-          path: kb                     # clona la KB in ./kb
+          path: kb
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -39,23 +31,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Debug utile: verifica che i .md ci siano
+      - name: Debug KB tree
+        run: |
+          echo "PWD=$(pwd)"
+          ls -la kb || true
+          find kb -type f -name "*.md" | wc -l
+          find kb -type f -name "*.md" | head -n 20
+
       - name: Ingest into Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          KB_DIR: kb
         run: python ingest.py
-
-       - name: Debug KB tree
-        run: |
-          echo "PWD = $(pwd)"
-          echo "Listing kb/ ..."
-          ls -la kb || true
-          echo "Listing all md under kb/ ..."
-          find kb -type f -name "*.md" | wc -l
-          find kb -type f -name "*.md" | head -n 20
-
-      - name: Debug requirements presence
-        run: |
-          ls -la
-          test -f requirements.txt && echo "requirements.txt OK" || (echo "requirements.txt MISSING" && exit 1)
-          test -f ingest.py && echo "ingest.py OK" || (echo "ingest.py MISSING" && exit 1)
