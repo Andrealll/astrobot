@@ -38,3 +38,18 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python ingest.py
+
+       - name: Debug KB tree
+        run: |
+          echo "PWD = $(pwd)"
+          echo "Listing kb/ ..."
+          ls -la kb || true
+          echo "Listing all md under kb/ ..."
+          find kb -type f -name "*.md" | wc -l
+          find kb -type f -name "*.md" | head -n 20
+
+      - name: Debug requirements presence
+        run: |
+          ls -la
+          test -f requirements.txt && echo "requirements.txt OK" || (echo "requirements.txt MISSING" && exit 1)
+          test -f ingest.py && echo "ingest.py OK" || (echo "ingest.py MISSING" && exit 1)
