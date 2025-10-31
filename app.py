@@ -6,3 +6,6 @@ app = FastAPI()
 @app.get("/")
 def root():
     return {"status": "ok", "message": "AstroBot online 🪐"}
+
+
+app.include_router(kb_router)
