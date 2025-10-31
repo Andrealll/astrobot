@@ -1,5 +1,6 @@
 # app.py (root del repo)
 from fastapi import FastAPI
+from app_kb import kb_router 
 
 app = FastAPI()
 
