@@ -2,17 +2,20 @@ import os, re, glob, yaml
 from pathlib import Path
 from typing import List
 import numpy as np
-
 from supabase import create_client, Client
-from fastembed import TextEmbedding
+
+# fastembed import robusto
+try:
+    from fastembed import TextEmbedding
+except ImportError:
+    from fastembed.embedding import TextEmbedding  # fallback
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Modello leggero, 384-dim, multilingue
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-small")
-EMBED = TextEmbedding(model_name=EMBEDDING_MODEL)
+EMBED = TextEmbedding(model_name=EMBEDDING_MODEL)  # 384-d
 
 KB_DIR = os.environ.get("KB_DIR", "kb")
 REQUIRED = ["id", "entity_type", "context"]
@@ -46,9 +49,8 @@ def chunk_text(body, max_chars=1200):
     return chunks
 
 def embed(texts: List[str]) -> np.ndarray:
-    # fastembed ritorna un iteratore di np.ndarray
     arr = list(EMBED.embed(texts))
-    return np.vstack(arr).astype(np.float32)  # (N, 384)
+    return np.vstack(arr).astype(np.float32)  # (N,384)
 
 def upsert_rows(rows):
     return supabase.table("astro_kb_chunks").upsert(rows, on_conflict="id").execute()
