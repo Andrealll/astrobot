@@ -15,12 +15,11 @@ jobs:
       - name: Checkout public repo
         uses: actions/checkout@v4
 
-      # Clona la KB privata in una cartella temporanea
       - name: Checkout private KB
         uses: actions/checkout@v4
         with:
-          repository: Andrealll/astrobot-kb   # <— OK
-          ref: main                           # <— cambia se il branch NON è main
+          repository: Andrealll/astrobot-kb
+          ref: main
           token: ${{ secrets.KB_READ_TOKEN }}
           path: kb_repo
 
@@ -32,7 +31,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Forza 'kb/' ad essere una CARTELLA e copia dentro i file della KB
       - name: Ensure kb/ directory and copy KB files
         run: |
           rm -rf kb || true
@@ -51,4 +49,5 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           KB_DIR: kb
+          EMBEDDING_MODEL: intfloat/multilingual-e5-small
         run: python ingest.py
