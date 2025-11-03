@@ -49,5 +49,5 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
           KB_DIR: kb
-          EMBEDDING_MODEL: intfloat/multilingual-e5-small
+          EMBEDDING_MODEL: BAAI/bge-small-en-v1.5   # <— QUI
         run: python ingest.py
